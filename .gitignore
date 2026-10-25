@@ -1,0 +1,39 @@
+# Environments & Secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Playwright & Browser-use artifacts/traces
+test-results/
+playwright-report/
+blob-report/
+.cache/
+traces/
+videos/
+screenshots/
+
+# IDE & OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
