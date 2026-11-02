@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --color-obsidian-950: #060608;
+  --color-obsidian-900: #0b0b0f;
+  --color-obsidian-850: #111116;
+  --color-obsidian-800: #171720;
+  --color-obsidian-750: #21212c;
+  --color-obsidian-700: #2c2c3a;
+  --color-obsidian-600: #3c3c4f;
+
+  --color-gold-metallic: #d4af37;
+  --color-gold-accent: #f59e0b;
+  --color-gold-light: #fef08a;
+  --color-gold-muted: rgba(212, 175, 55, 0.18);
+  --color-gold-border: rgba(212, 175, 55, 0.35);
+}
+
+:root {
+  --background: #060608;
+  --foreground: #f3f4f6;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Tabular numbers for price and ratio metrics */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0b0f;
+}
+::-webkit-scrollbar-thumb {
+  background: #21212c;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d4af37;
+}
+
+/* Custom Selection */
+::selection {
+  background: rgba(212, 175, 55, 0.25);
+  color: #fef08a;
+}
