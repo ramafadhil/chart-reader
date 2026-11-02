@@ -1,102 +1,80 @@
 # 🚀 Crypto Volatility Screener & AI Technical Analyst
 
-An automated crypto screener that combines **mathematical pre-screening** on CoinMarketCap data with an **autonomous AI Agent (powered by `browser-use` and Google Gemini)** to inspect interactive TradingView candlestick charts and Perpetual Futures availability.
+An automated crypto screener and AI technical analyst combining **mathematical pre-screening** on CoinMarketCap data with an **autonomous AI Agent (powered by `browser-use`)** to inspect interactive TradingView candlestick charts and Perpetual Futures availability.
+
+Features a **flagship Next.js (App Router) + Framer Motion + Tailwind CSS** frontend styled with an elite **Hitam & Emas / Gelap (Dark Luxury Fintech)** aesthetic, **Multi-Provider 2026 LLM support** (Google Gemini, Anthropic Claude, OpenAI, Groq, DeepSeek), live **Server-Sent Events (SSE)** streaming, and an interactive **Watch Agent Browser (Headed)** toggle.
 
 ---
 
-## 📌 Features
+## 📌 Architecture & Features
 
-1. **Mathematical Pre-Screening:**
-   - Scrapes ranks 50–200 on CoinMarketCap using headless Playwright.
-   - Filters out stablecoins.
-   - Calculates **Volatility Compression Ratio** (`abs(24h_change) / abs(7d_change) < 0.15`) and **Volume-to-Market-Cap Ratio (VMC)** (`3% - 15%`).
-   - Limits 24h price swing between `-10%` and `+10%` to spot sideways consolidation.
-2. **AI Chart Verification:**
-   - Automatically navigates to shortlisted coins on CoinMarketCap.
-   - Switches to the **TradingView** interactive chart (1h / 4h timeframe).
-   - Validates horizontal sideways compression, support & resistance levels.
-   - Verifies perpetual futures availability (Binance / Bitget).
-   - Reports the top 3 best setups with estimated target zones (+5% TP, -5% SL).
+### 🌟 Frontend (`/frontend` — Next.js 16 + React 19 + Framer Motion)
+- **Fluid Micro-Interactions & Spring Physics (`framer-motion`)**:
+  - **Sliding Tab Indicator (`layoutId="active-provider-pill"`)**: Smooth spring animation when switching between Google, Claude, OpenAI, Groq, and DeepSeek.
+  - **Cascade Stagger Entrances**: Shortlisted coins glide into the list with spring easing as soon as Stage 1 math completes.
+  - **Live Terminal Telemetry**: Streaming real-time steps with auto-scrolling log feed.
+  - **Risk/Reward Target Zone Gauges**: Visual bar breakdown for speculative entry, Take-Profit (+5%), and Stop-Loss (-5%).
+  - **Morphing Copy Action**: "📋 Copy Raw Analysis for Claude" button morphs into a checkmark with celebratory spring feedback.
+- **In-Browser Credential Security**: API keys are masked and cached strictly inside browser `localStorage` per provider. Zero `.env` requirements for frontend users.
+- **Hitam & Emas (Dark Luxury)**: Deep obsidian surfaces (`#060608`), crisp white-gold typography, and brushed gold borders (`#d4af37`).
+
+### ⚙️ Backend (`app.py`, `screener_engine.py`, `llm_factory.py` — FastAPI + Python 3.10+)
+- **Stage 1 (Mathematical Pre-screening)**:
+  - Scrapes CoinMarketCap ranks 50–200 via headless Playwright.
+  - Filters stablecoins and calculates **Volatility Compression Ratio (VCR)** (`abs(24h)/abs(7d) < 0.15`) and **Volume-to-Market-Cap Ratio (VMC)** (`3% - 15%`).
+- **Stage 2 (Autonomous AI Visual Verification)**:
+  - `browser-use` Agent with Google Gemini, Anthropic Claude, OpenAI, Groq, or DeepSeek.
+  - Navigates to CoinMarketCap, toggles TradingView interactive candlestick charts (1h/4h), checks horizontal consolidation, and verifies Binance/Bitget Perpetual Futures.
+  - Emits real-time SSE stream events to the Next.js client.
+- **Execution Mode**:
+  - **Watch Agent Browser (Headed)**: Chromium window opens on screen so viewers/recruiters can watch the AI browse live.
+  - **Headless Mode**: Runs silently in the background.
 
 ---
 
-## 📋 Prerequisites
+## 🚀 Quick Start
 
-- **Python**: Version `3.10` or higher
-- **Google Gemini API Key**: [Get an API key from Google AI Studio](https://aistudio.google.com/)
-
----
-
-## 🛠️ Installation & Setup
-
-### 1. Clone the Repository
-```bash
-git clone <your-repo-url>
-cd crypto-agent
-```
-
-### 2. Create and Activate a Virtual Environment
-
-- **Windows (PowerShell):**
-  ```powershell
-  python -m venv .venv
-  .venv\Scripts\Activate.ps1
-  ```
-- **Windows (Command Prompt):**
-  ```cmd
-  python -m venv .venv
-  .venv\Scripts\activate.bat
-  ```
-- **macOS / Linux:**
-  ```bash
-  python3 -m venv .venv
-  source .venv/bin/activate
-  ```
-
-### 3. Install Dependencies
-```bash
+### 1. Install Backend Dependencies
+```powershell
+.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-```
-
-### 4. Install Playwright Browsers
-Playwright requires browser binaries to scrape and run the AI agent:
-```bash
 playwright install chromium
 ```
 
-### 5. Configure Environment Variables
-Copy the `.env.example` file to `.env`:
-```bash
-# Windows PowerShell / CMD
-copy .env.example .env
-
-# macOS / Linux
-cp .env.example .env
+### 2. Run Both Backend & Frontend (One Command)
+Gunakan launcher otomatis:
+```powershell
+.\run.ps1
 ```
+*(atau klik ganda file **`run.bat`** di Windows Explorer)*
 
-Open `.env` and insert your Google Gemini API key:
-```env
-GOOGLE_API_KEY="your_actual_gemini_api_key_here"
-```
+Ini akan otomatis:
+1. Menjalankan **FastAPI Backend** di `http://127.0.0.1:8000`
+2. Menjalankan **Next.js Frontend** di `http://localhost:3000`
+
+Buka browser di:
+👉 **`http://localhost:3000`**
 
 ---
 
-## 🚦 Usage
+### Manual Launch (Dua Terminal)
 
-Run the screener script:
-```bash
-python screener.py
+**Terminal 1 (Backend FastAPI):**
+```powershell
+.\.venv\Scripts\python.exe app.py
 ```
 
-### How It Works:
-1. Performs mathematical filtering on CoinMarketCap (ranks 50–200).
-2. Prints a sorted `MATHEMATICAL SHORTLIST` to the console.
-3. Automatically tests priority Gemini models (`gemini-3.1-pro-preview`, `gemini-2.5-pro`, `gemini-3.5-flash`, etc.) for active quota.
-4. Launches the browser agent to analyze charts and outputs the top 3 setups.
+**Terminal 2 (Frontend Next.js):**
+```powershell
+cd frontend
+npm run dev
+```
 
 ---
 
 ## 🛡️ Privacy & Security
-
-- Do **not** commit your `.env` file or API keys.
-- Ensure `.gitignore` is present before making Git commits.
+- **Thread-Safe & Zero Leaks**: API keys are passed directly to LLM constructors in memory without polluting process-global environment variables (`os.environ`).
+- **In-Browser Isolation**: API keys entered in the UI are stored strictly in client-side `localStorage` per provider. A **"Clear Key"** button is provided to wipe keys immediately at any time.
+- **Strict Local CORS**: API endpoints are locked to explicit loopback origins (`http://localhost:3000`, `http://127.0.0.1:3000`).
+- **Anti-DoS Concurrency Lock**: Backend enforces single-task execution to protect system memory and Chromium process limits.
+- **Prompt Injection Defense**: External CoinMarketCap tickers and symbols undergo strict regex sanitization before LLM prompt injection, with enforced domain restrictions (`coinmarketcap.com` and `tradingview.com`).

@@ -4,6 +4,12 @@
 .env.*.local
 *.env
 
+# Internal planning & agent scratch files
+PRODUCT.md
+.impeccable/
+*.tmp
+*.bak
+
 # Virtual Environment
 .venv/
 venv/
@@ -20,6 +26,29 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Node & Next.js Frontend
+node_modules/
+frontend/node_modules/
+.next/
+frontend/.next/
+out/
+frontend/out/
+build/
+frontend/build/
+.vercel/
+frontend/.vercel/
+*.tsbuildinfo
+frontend/*.tsbuildinfo
+next-env.d.ts
+frontend/next-env.d.ts
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
 # Playwright & Browser-use artifacts/traces
 test-results/
