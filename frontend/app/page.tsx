@@ -14,7 +14,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 export default function Home() {
   const [providers, setProviders] = useState<Record<string, ProviderConfig>>({});
   const [selectedProvider, setSelectedProvider] = useState<string>("google");
-  const [selectedModel, setSelectedModel] = useState<string>("gemini-3.8-flash");
+  const [selectedModel, setSelectedModel] = useState<string>("gemini-3.5-flash");
   const [apiKey, setApiKey] = useState<string>("");
   const [isHeaded, setIsHeaded] = useState<boolean>(false);
 
@@ -58,7 +58,7 @@ export default function Home() {
           setProviders(data.providers);
           const initialP = data.providers["google"] ? "google" : Object.keys(data.providers)[0];
           setSelectedProvider(initialP);
-          setSelectedModel(data.providers[initialP]?.default_model || "gemini-3.8-flash");
+          setSelectedModel(data.providers[initialP]?.default_model || "gemini-3.5-flash");
 
           // Load key from localStorage
           const savedKey = localStorage.getItem(`crypto_screener_key_${initialP}`) || "";
