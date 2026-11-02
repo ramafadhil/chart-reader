@@ -301,6 +301,21 @@ async def run_screening_orchestrator(
         
         llm = create_llm(provider=provider, model=model, api_key=api_key)
         
+        # Configure Resilient Fallback LLM if primary model hits 503 (high demand) or rate limit
+        fallback_llm = None
+        try:
+            if provider == "google":
+                fallback_model = "gemini-3.5-flash-lite" if model != "gemini-3.5-flash-lite" else "gemini-3.5-flash"
+                fallback_llm = create_llm(provider="google", model=fallback_model, api_key=api_key)
+            elif provider == "anthropic":
+                fallback_model = "claude-haiku-5-5" if model != "claude-haiku-5-5" else "claude-sonnet-5-5"
+                fallback_llm = create_llm(provider="anthropic", model=fallback_model, api_key=api_key)
+            elif provider == "openai":
+                fallback_model = "gpt-5-mini" if model != "gpt-5-mini" else "gpt-6-luna"
+                fallback_llm = create_llm(provider="openai", model=fallback_model, api_key=api_key)
+        except Exception:
+            fallback_llm = None
+        
         # Construct Prompt for Browser-Use
         prompt_task = (
             "Act as a professional Crypto Technical Analyst and Volatility Screener.\n"
@@ -367,6 +382,7 @@ async def run_screening_orchestrator(
         agent = Agent(
             task=prompt_task,
             llm=llm,
+            fallback_llm=fallback_llm,
             browser_profile=browser_profile,
             register_new_step_callback=on_step_callback
         )

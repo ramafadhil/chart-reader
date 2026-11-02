@@ -1,8 +1,21 @@
 import asyncio
 import json
 import os
+import sys
 import uuid
 from typing import Any, Dict, Optional
+
+# Windows Proactor Event Loop Patch for Playwright Subprocess Transport
+if sys.platform == "win32":
+    try:
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+    except Exception:
+        pass
+    try:
+        import uvicorn.loops.asyncio as _u_asyncio
+        _u_asyncio.asyncio_loop_factory = lambda use_subprocess=False: asyncio.ProactorEventLoop
+    except Exception:
+        pass
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -45,13 +58,13 @@ screening_lock = asyncio.Lock()
 
 class ScreenRequest(BaseModel):
     provider: str = "google"
-    model: str = "gemini-3.8-flash"
+    model: str = "gemini-3.5-flash"
     api_key: Optional[str] = None
     headed: bool = False
 
 class VerifyKeyRequest(BaseModel):
     provider: str = "google"
-    model: str = "gemini-3.8-flash"
+    model: str = "gemini-3.5-flash"
     api_key: str
 
 def validate_provider(provider: str):
@@ -204,4 +217,5 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
+    loop_target = "asyncio:ProactorEventLoop" if sys.platform == "win32" else "auto"
+    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True, loop=loop_target)

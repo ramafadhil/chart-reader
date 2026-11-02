@@ -1,3 +1,4 @@
+import asyncio
 import os
 from typing import Any, Dict, List, Optional
 from browser_use.llm.base import BaseChatModel
@@ -9,15 +10,15 @@ PROVIDERS_CONFIG: Dict[str, Dict[str, Any]] = {
         "name": "Google Gemini",
         "env_key": "GOOGLE_API_KEY",
         "key_placeholder": "AIzaSy...",
-        "default_model": "gemini-3.8-flash",
+        "default_model": "gemini-3.5-flash",
         "models": [
-            {"id": "gemini-3.8-flash", "label": "Gemini 3.8 Flash (Production Default)", "recommended": True},
-            {"id": "gemini-4-argon", "label": "Gemini 4 Argon (Flagship Reasoning)"},
+            {"id": "gemini-3.5-flash", "label": "Gemini 3.5 Flash (Fast & Stable Default)", "recommended": True},
+            {"id": "gemini-3.5-flash-lite", "label": "Gemini 3.5 Flash-Lite (High Quota / Ultra-Fast)"},
+            {"id": "gemini-flash-lite-latest", "label": "Gemini Flash-Lite Latest"},
+            {"id": "gemini-flash-latest", "label": "Gemini Flash Latest"},
+            {"id": "gemini-3.8-flash", "label": "Gemini 3.8 Flash (High Demand)"},
+            {"id": "gemini-4-argon", "label": "Gemini 4 Argon (Reasoning)"},
             {"id": "gemini-3.1-pro-preview", "label": "Gemini 3.1 Pro Preview"},
-            {"id": "gemini-3.1-flash-lite", "label": "Gemini 3.1 Flash-Lite (High Quota / Budget)"},
-            {"id": "gemini-2.5-flash", "label": "Gemini 2.5 Flash"},
-            {"id": "gemini-2.5-pro", "label": "Gemini 2.5 Pro"},
-            {"id": "gemini-2.0-flash", "label": "Gemini 2.0 Flash"},
         ]
     },
     "anthropic": {
@@ -79,7 +80,12 @@ PROVIDERS_CONFIG: Dict[str, Dict[str, Any]] = {
     }
 }
 
-def create_llm(provider: str, model: str, api_key: Optional[str] = None) -> BaseChatModel:
+def create_llm(
+    provider: str,
+    model: str,
+    api_key: Optional[str] = None,
+    max_retries: int = 5
+) -> BaseChatModel:
     """
     Factory to construct the appropriate BaseChatModel for browser-use.
     Falls back to environment variables if api_key is omitted.
@@ -101,7 +107,8 @@ def create_llm(provider: str, model: str, api_key: Optional[str] = None) -> Base
             model=model,
             api_key=resolved_key or None,
             temperature=0.0,
-            max_output_tokens=8192
+            max_output_tokens=8192,
+            max_retries=max_retries
         )
 
     elif p == "anthropic":
@@ -154,15 +161,26 @@ def create_llm(provider: str, model: str, api_key: Optional[str] = None) -> Base
 async def verify_llm_credentials(provider: str, model: str, api_key: str) -> Dict[str, Any]:
     """
     Test invoking the model with a minimal prompt to verify API key & active quota.
+    Uses max_retries=1 and an 8-second timeout for snappy, non-hanging feedback.
     """
     try:
-        llm = create_llm(provider=provider, model=model, api_key=api_key)
+        llm = create_llm(provider=provider, model=model, api_key=api_key, max_retries=1)
         test_messages = [UserMessage(content="Hello, respond with 'OK'")]
-        await llm.ainvoke(test_messages)
+        await asyncio.wait_for(llm.ainvoke(test_messages), timeout=12.0)
         return {"success": True, "message": f"Successfully connected to {provider} ({model})"}
+    except asyncio.TimeoutError:
+        return {
+            "success": False,
+            "error": f"Verification timed out (12s) reaching '{model}'. Server may be experiencing high latency or rate limits."
+        }
     except Exception as e:
         err_msg = str(e)
         err_type = type(e).__name__
+        if "503" in err_msg or "high demand" in err_msg.lower():
+            return {
+                "success": False,
+                "error": f"Model '{model}' is experiencing high demand (503). Switch to 'gemini-3.5-flash' or 'gemini-3.5-flash-lite'!"
+            }
         # If it's a validation error, the request reached the model and token quota passed
         if "validation" in err_type.lower() or "validation" in err_msg.lower():
             return {"success": True, "message": f"Verified {provider} ({model}) via validation check"}
